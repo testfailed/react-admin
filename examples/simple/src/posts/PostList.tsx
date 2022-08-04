@@ -1,58 +1,24 @@
 import * as React from 'react';
 import { Fragment, memo } from 'react';
 import BookIcon from '@mui/icons-material/Book';
-import { Box, Chip, useMediaQuery } from '@mui/material';
-import { Theme, styled } from '@mui/material/styles';
-import lodashGet from 'lodash/get';
-import jsonExport from 'jsonexport/dist';
+import { styled } from '@mui/material/styles';
 import {
-    BooleanField,
     BulkDeleteButton,
-    BulkExportButton,
-    ChipField,
+    BulkDeleteWithConfirmButton,
+    BulkDeleteWithUndoButton,
     Datagrid,
-    DateField,
-    downloadCSV,
-    EditButton,
+    DeleteButton,
+    DeleteWithConfirmButton,
+    DeleteWithUndoButton,
     List,
-    NumberField,
-    ReferenceArrayField,
     SearchInput,
-    ShowButton,
-    SimpleList,
-    SingleFieldList,
     TextField,
-    TextInput,
-    useTranslate,
+    useRefresh,
 } from 'react-admin'; // eslint-disable-line import/no-unresolved
 
-import ResetViewsButton from './ResetViewsButton';
 export const PostIcon = BookIcon;
 
-const QuickFilter = ({ label, source, defaultValue }) => {
-    const translate = useTranslate();
-    return <Chip sx={{ marginBottom: 1 }} label={translate(label)} />;
-};
-
-const postFilter = [
-    <SearchInput source="q" alwaysOn />,
-    <TextInput source="title" defaultValue="Qui tempore rerum et voluptates" />,
-    <QuickFilter
-        label="resources.posts.fields.commentable"
-        source="commentable"
-        defaultValue
-    />,
-];
-
-const exporter = posts => {
-    const data = posts.map(post => ({
-        ...post,
-        backlinks: lodashGet(post, 'backlinks', []).map(
-            backlink => backlink.url
-        ),
-    }));
-    return jsonExport(data, (err, csv) => downloadCSV(csv, 'posts'));
-};
+const postFilter = [<SearchInput source="q" alwaysOn />];
 
 const StyledDatagrid = styled(Datagrid)(({ theme }) => ({
     '& .title': {
@@ -72,17 +38,48 @@ const StyledDatagrid = styled(Datagrid)(({ theme }) => ({
     '& .publishedAt': { fontStyle: 'italic' },
 }));
 
-const PostListBulkActions = memo(({ children, ...props }) => (
-    <Fragment>
-        <ResetViewsButton {...props} />
-        <BulkDeleteButton {...props} />
-        <BulkExportButton {...props} />
-    </Fragment>
-));
-
-const PostListActionToolbar = ({ children, ...props }) => (
-    <Box sx={{ alignItems: 'center', display: 'flex' }}>{children}</Box>
-);
+const PostListBulkActions = memo(({ children, ...props }) => {
+    const refresh = useRefresh();
+    return (
+        <Fragment>
+            <BulkDeleteButton
+                {...props}
+                label="Bulk Delete Button"
+                mutationMode="undoable"
+                mutationOptions={{
+                    onSuccess: () => {
+                        console.log('success BulkDeleteButton[undoable]');
+                        refresh();
+                    },
+                    meta: { test: 'BulkDeleteButton_meta' },
+                }}
+            />
+            <BulkDeleteWithConfirmButton
+                {...props}
+                label="Bulk Delete With ConfirmButton"
+                mutationMode="pessimistic"
+                mutationOptions={{
+                    onSuccess: () => {
+                        console.log('success BulkDeleteWithConfirmButton');
+                        refresh();
+                    },
+                    meta: { test: 'BulkDeleteWithConfirmButton_meta' },
+                }}
+            />
+            <BulkDeleteWithUndoButton
+                {...props}
+                label="Bulk Delete With Undo Button"
+                mutationOptions={{
+                    onSuccess: () => {
+                        console.log('success BulkDeleteWithUndoButton');
+                        refresh();
+                    },
+                    meta: { test: 'BulkDeleteWithUndoButton_meta' },
+                }}
+            />
+        </Fragment>
+    );
+});
 
 const rowClick = (id, resource, record) => {
     if (record.commentable) {
@@ -97,65 +94,61 @@ const PostPanel = ({ id, record, resource }) => (
 );
 
 const PostList = () => {
-    const isSmall = useMediaQuery<Theme>(theme => theme.breakpoints.down('md'));
+    const refresh = useRefresh();
     return (
         <List
             filters={postFilter}
             sort={{ field: 'published_at', order: 'DESC' }}
-            exporter={exporter}
         >
-            {isSmall ? (
-                <SimpleList
-                    primaryText={record => record.title}
-                    secondaryText={record => `${record.views} views`}
-                    tertiaryText={record =>
-                        new Date(record.published_at).toLocaleDateString()
-                    }
+            <StyledDatagrid
+                bulkActionButtons={<PostListBulkActions />}
+                rowClick={rowClick}
+                expand={PostPanel}
+                optimized
+            >
+                <TextField source="id" />
+                <TextField source="title" cellClassName="title" />
+                <DeleteButton
+                    label="Delete Button"
+                    mutationMode="undoable"
+                    mutationOptions={{
+                        onSuccess: () => {
+                            console.log('success DeleteButton[undoable]');
+                            refresh();
+                        },
+                        meta: {
+                            test: 'DeleteButton_meta',
+                        },
+                    }}
                 />
-            ) : (
-                <StyledDatagrid
-                    bulkActionButtons={<PostListBulkActions />}
-                    rowClick={rowClick}
-                    expand={PostPanel}
-                    optimized
-                >
-                    <TextField source="id" />
-                    <TextField source="title" cellClassName="title" />
-                    <DateField
-                        source="published_at"
-                        sortByOrder="DESC"
-                        cellClassName="publishedAt"
-                    />
-
-                    <BooleanField
-                        source="commentable"
-                        label="resources.posts.fields.commentable_short"
-                        sortable={false}
-                    />
-                    <NumberField source="views" sortByOrder="DESC" />
-                    <ReferenceArrayField
-                        label="Tags"
-                        reference="tags"
-                        source="tags"
-                        sortBy="tags.name"
-                        sort={tagSort}
-                        cellClassName="hiddenOnSmallScreens"
-                        headerClassName="hiddenOnSmallScreens"
-                    >
-                        <SingleFieldList>
-                            <ChipField source="name.en" size="small" />
-                        </SingleFieldList>
-                    </ReferenceArrayField>
-                    <PostListActionToolbar>
-                        <EditButton />
-                        <ShowButton />
-                    </PostListActionToolbar>
-                </StyledDatagrid>
-            )}
+                <DeleteWithConfirmButton
+                    label="Delete With Confirm Button"
+                    mutationMode="undoable"
+                    mutationOptions={{
+                        onSuccess: () => {
+                            console.log('success DeleteWithConfirmButton');
+                            refresh();
+                        },
+                        meta: {
+                            test: 'DeleteWithConfirmButton_meta',
+                        },
+                    }}
+                />
+                <DeleteWithUndoButton
+                    label="Delete With Undo Button"
+                    mutationOptions={{
+                        onSuccess: () => {
+                            console.log('success DeleteWithUndoButton');
+                            refresh();
+                        },
+                        meta: {
+                            test: 'DeleteWithUndoButton_meta',
+                        },
+                    }}
+                />
+            </StyledDatagrid>
         </List>
     );
 };
-
-const tagSort = { field: 'name.en', order: 'ASC' };
 
 export default PostList;
