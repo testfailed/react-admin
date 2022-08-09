@@ -46,19 +46,16 @@ const MyMenu = () => (
     <Menu>
         <Menu.DashboardItem />
         <Menu.Item to="/posts" primaryText="Posts" />
-        <Menu.Item to="/comments" primaryText="Comments" />
-        <Menu.Item to="/customlist1" primaryText="customlist1" />
-        <Menu.Item to="/customlist2" primaryText="customlist2" />
-        <Menu.Item to="/sharedlist1" primaryText="sharedlist1" />
-        <Menu.Item to="/sharedlist2" primaryText="sharedlist2" />
+        <Menu.Item to="/mypostlist1" primaryText="MyPostList1" />
+        <Menu.Item to="/mypostlist2" primaryText="MyPostList2" />
+        <Menu.Item to="/mypostlist+list1" primaryText="MyPostList + list1" />
+        <Menu.Item to="/mypostlist+list2" primaryText="MyPostList + list2" />
         <Menu.Item
-            to="/duallistunsync"
-            primaryText="duallist disableSync: true"
+            to="/mypostlist+list3+unsync"
+            primaryText="MyPostList + list3 + unsync"
         />
-        <Menu.Item
-            to="/duallistsync"
-            primaryText="duallist disableSync: false"
-        />
+        <Menu.Item to="/dual+unsync" primaryText="dual unsynch" />
+        <Menu.Item to="/dual+sync" primaryText="dual synch" />
     </Menu>
 );
 
