@@ -47,8 +47,18 @@ const MyMenu = () => (
         <Menu.DashboardItem />
         <Menu.Item to="/posts" primaryText="Posts" />
         <Menu.Item to="/comments" primaryText="Comments" />
-        <Menu.Item to="/list1" primaryText="list1" />
-        <Menu.Item to="/list2" primaryText="list2" />
+        <Menu.Item to="/customlist1" primaryText="customlist1" />
+        <Menu.Item to="/customlist2" primaryText="customlist2" />
+        <Menu.Item to="/sharedlist1" primaryText="sharedlist1" />
+        <Menu.Item to="/sharedlist2" primaryText="sharedlist2" />
+        <Menu.Item
+            to="/duallistunsync"
+            primaryText="duallist disableSync: true"
+        />
+        <Menu.Item
+            to="/duallistsync"
+            primaryText="duallist disableSync: false"
+        />
     </Menu>
 );
 

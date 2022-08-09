@@ -8,7 +8,12 @@ import authProvider from './authProvider';
 import comments from './comments';
 import CustomRouteLayout from './customRouteLayout';
 import CustomRouteNoLayout from './customRouteNoLayout';
-import { MyPostList } from './MyPostList';
+import {
+    MyPostList,
+    MyPostList1,
+    MyPostList2,
+    MyPostLists,
+} from './MyPostList';
 import dataProvider from './dataProvider';
 import i18nProvider from './i18nProvider';
 import Layout from './Layout';
@@ -35,15 +40,33 @@ render(
             <Resource name="comments" {...comments} />
             <Resource name="tags" {...tags} />
             <CustomRoutes>
+                <Route path="/customlist1" element={<MyPostList1 />} />
+            </CustomRoutes>
+            <CustomRoutes>
+                <Route path="/customlist2" element={<MyPostList2 />} />
+            </CustomRoutes>
+            <CustomRoutes>
                 <Route
-                    path="/list1"
+                    path="/sharedlist1"
                     element={<MyPostList storeKey="list1" />}
                 />
             </CustomRoutes>
             <CustomRoutes>
                 <Route
-                    path="/list2"
+                    path="/sharedlist2"
                     element={<MyPostList storeKey="list2" />}
+                />
+            </CustomRoutes>
+            <CustomRoutes>
+                <Route
+                    path="/duallistunsync"
+                    element={<MyPostLists disableSync={true} />}
+                />
+            </CustomRoutes>
+            <CustomRoutes>
+                <Route
+                    path="/duallistsync"
+                    element={<MyPostLists disableSync={false} />}
                 />
             </CustomRoutes>
             {permissions => (
