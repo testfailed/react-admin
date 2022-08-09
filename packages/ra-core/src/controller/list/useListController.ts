@@ -71,7 +71,6 @@ export const useListController = <RecordType extends RaRecord = any>(
         resource,
         sort,
     });
-    console.log({ query });
 
     const [selectedIds, selectionModifiers] = useRecordSelection(resource);
 

@@ -45,28 +45,35 @@ import { useStoreContext } from './useStoreContext';
  *     );
  * };
  */
+
+const condlog = obj => {
+    if (/list/i.test(_get(obj, 'key'))) {
+        console.log(obj);
+    }
+};
+
 export const useStore = <T = any>(
     key: string,
     defaultValue?: T
 ): useStoreResult<T> => {
     const { getItem, setItem, subscribe } = useStoreContext();
     const [value, setValue] = useState(() => getItem(key, defaultValue));
-    if (/list/i.test(key)) {
-        console.log({
-            action: 'useStore',
-            key,
-            value: _get(value, 'perPage'),
-            storeValue: _get(getItem(key, defaultValue), 'perPage'),
-        });
-    }
+    condlog({
+        action: 'useStore',
+        key,
+        value: _get(value, 'perPage'),
+        storeValue: _get(getItem(key, defaultValue), 'perPage'),
+    });
 
     // subscribe to changes on this key, and change the state when they happen
     useEffect(() => {
+        condlog({ action: 'setValue', key, defaultValue });
+        setValue(getItem(key, defaultValue));
         const unsubscribe = subscribe(key, newValue => {
             setValue(typeof newValue === 'undefined' ? defaultValue : newValue);
         });
         return () => unsubscribe();
-    }, [key, subscribe, defaultValue]);
+    }, [key, subscribe, defaultValue, getItem]);
 
     const set = useEventCallback(
         (valueParam: T, runtimeDefaultValue: T) => {
@@ -77,6 +84,7 @@ export const useStore = <T = any>(
             // we only set the value in the Store;
             // the value in the local state will be updated
             // by the useEffect during the next render
+            condlog({ action: 'setItem', key, newValue });
             setItem(
                 key,
                 typeof newValue === 'undefined'
