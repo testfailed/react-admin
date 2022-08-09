@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { get as _get } from 'lodash';
 
 import { useEventCallback } from '../util';
 import { useStoreContext } from './useStoreContext';
@@ -50,6 +51,14 @@ export const useStore = <T = any>(
 ): useStoreResult<T> => {
     const { getItem, setItem, subscribe } = useStoreContext();
     const [value, setValue] = useState(() => getItem(key, defaultValue));
+    if (/list/i.test(key)) {
+        console.log({
+            action: 'useStore',
+            key,
+            value: _get(value, 'perPage'),
+            storeValue: _get(getItem(key, defaultValue), 'perPage'),
+        });
+    }
 
     // subscribe to changes on this key, and change the state when they happen
     useEffect(() => {
