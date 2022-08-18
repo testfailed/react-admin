@@ -26,6 +26,14 @@ export const useWarnWhenUnsavedChanges = (
     const isDirty = Object.keys(dirtyFields).length > 0;
     const initialLocation = useRef(formRootPathname || location.pathname);
 
+    console.log({
+        isSubmitSuccessful,
+        isSubmitting,
+        dirtyFields,
+        isDirty,
+        initialLocation,
+    });
+
     useEffect(() => {
         if (!enable || !isDirty) return;
 
